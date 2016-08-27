@@ -12,6 +12,7 @@ public class DesktopLauncher {
 		config.title="Meme";
 		config.width=LudumDare36VideoGame.WIDTH;
 		config.height=LudumDare36VideoGame.HEIGHT;
+		config.samples=0;
 		
 		new LwjglApplication(new LudumDare36VideoGame(), config);
 	}

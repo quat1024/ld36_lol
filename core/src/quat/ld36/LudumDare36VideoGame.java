@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import quat.ld36.screen.MainMenuScreen;
+import quat.ld36.screen.Screens;
 
 public class LudumDare36VideoGame extends Game {
 	
@@ -27,6 +28,8 @@ public class LudumDare36VideoGame extends Game {
 	public static OrthogonalTiledMapRenderer mapRenderer;
 	
 	public static Pixmap backgroundImage;
+	
+	
 	
 	@Override
 	public void create() {
@@ -48,8 +51,11 @@ public class LudumDare36VideoGame extends Game {
 		tiledMap = new TmxMapLoader().load("TestMap.tmx");
 		mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,1/16f);
 		
+		//Load screens
+		new Screens(this);
+		
 		//Default to the main menu screen.
-		this.setScreen(new MainMenuScreen(this));
+		this.setScreen(Screens.MAIN_MENU_SCREEN);
 	}
 
 	@Override
