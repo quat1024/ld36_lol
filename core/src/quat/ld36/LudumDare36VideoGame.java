@@ -23,39 +23,49 @@ public class LudumDare36VideoGame extends Game {
 	
 	public static Pixmap cursorImage;
 	
-	//Let's put these here to preload them (?)
-	public static TiledMap testMap;
-	public static OrthogonalTiledMapRenderer renderer;
+	public static TiledMap tiledMap;
+	public static OrthogonalTiledMapRenderer mapRenderer;
 	
 	public static Pixmap backgroundImage;
 	
 	@Override
 	public void create() {
+		//Make our batch renderers
+		//Daily reminder not to nest these...
 		batch = new SpriteBatch();
 		shapes = new ShapeRenderer();
 		
+		//Font!
 		font = new BitmapFont(Gdx.files.internal("CordiaUPC.fnt"));
 		
-		this.setScreen(new MainMenuScreen(this));
-		
+		//Cursor
 		cursorImage = new Pixmap(Gdx.files.internal("cursor.png"));
 		Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorImage,8,8));
 		
-		testMap = new TmxMapLoader().load("TestMap.tmx");
-		renderer = new OrthogonalTiledMapRenderer(testMap,1/16f);
+		//Load the map.
+		//We do this here, because it's better to have the massive
+		//lag spike right now, instead of right when you click play.
+		tiledMap = new TmxMapLoader().load("TestMap.tmx");
+		mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,1/16f);
+		
+		//Default to the main menu screen.
+		this.setScreen(new MainMenuScreen(this));
 	}
 
 	@Override
 	public void render() {
+		//The Game class will render the current screen.
+		//But only if I do this:
 		super.render();
 	}
 	
 	@Override
 	public void dispose() {
+		//Remember to unload stuff here ya dummy!
 		batch.dispose();
 		font.dispose();
 		cursorImage.dispose();
-		
-		testMap.dispose();
+		tiledMap.dispose();
+		mapRenderer.dispose();
 	}
 }

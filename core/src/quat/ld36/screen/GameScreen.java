@@ -9,16 +9,16 @@ import quat.ld36.LudumDare36VideoGame;
 import quat.ld36.player.PlayerCharacter;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
-import static quat.ld36.LudumDare36VideoGame.testMap;
+import static quat.ld36.LudumDare36VideoGame.tiledMap;
 
 public class GameScreen implements Screen {
 	
-	LudumDare36VideoGame game;
+	public static LudumDare36VideoGame game;
 	
-	OrthographicCamera camera;
+	public static OrthographicCamera camera;
 	
 	
-	PlayerCharacter player;
+	public static PlayerCharacter player;
 	
 	public GameScreen(LudumDare36VideoGame game_) {
 		game = game_;
@@ -26,7 +26,7 @@ public class GameScreen implements Screen {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 32,18);
 		
-		player = new PlayerCharacter(8,7,testMap);
+		player = new PlayerCharacter(8,7, tiledMap);
 	}
 	
 	@Override
@@ -35,30 +35,33 @@ public class GameScreen implements Screen {
 	}
 	
 	public void render(float dt) {
+		//Clear screen
 		Gdx.gl.glClearColor(0.1f,0.1f,0.1f,1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		camera.position.x += (player.renderedPos.x - camera.position.x) * 2 * dt;
-		camera.position.y += (player.renderedPos.y - camera.position.y) * 2 * dt;
-		
-		camera.position.x = clamp(camera.position.x,16,1000);
-		camera.position.y = clamp(camera.position.y,9,1000);
-		
-		camera.update();
-		
+		//Update player
 		player.handleInput(dt);
 		player.update(dt);
 		
+		//Update camera and make sure it's not out of bounds
+		camera.position.x += (player.renderedPos.x - camera.position.x) * 2 * dt;
+		camera.position.y += (player.renderedPos.y - camera.position.y) * 2 * dt;
+		camera.position.x = clamp(camera.position.x,16,1000);
+		camera.position.y = clamp(camera.position.y,9,1000);
+		camera.update();
 		
-		game.renderer.setView(camera);
+		//Make sure everything's aligned to the camera
+		game.mapRenderer.setView(camera);
 		game.shapes.setProjectionMatrix(camera.combined);
 		
+		//Image Sprites Rendering
 		game.batch.begin();
-		game.renderer.render();
+		game.mapRenderer.render();
 		game.batch.end();
 		
+		//Shapes Rendering
 		game.shapes.begin(ShapeRenderer.ShapeType.Filled);
-		player.render(game.shapes);
+		player.render(game.shapes); //TODO make this a sprite
 		game.shapes.end();
 	}
 	
