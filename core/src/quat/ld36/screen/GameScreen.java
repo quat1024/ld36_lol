@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import quat.ld36.LudumDare36VideoGame;
 import quat.ld36.player.PlayerCharacter;
+import quat.ld36.util.EaseDt;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 import static com.badlogic.gdx.math.MathUtils.floor;
@@ -27,6 +28,10 @@ public class GameScreen implements Screen {
 	public static float rotation = 0;
 	public static float rotationTarget = 0;
 	
+	private EaseDt camX;
+	private EaseDt camY;
+	private EaseDt camR;
+	
 	public GameScreen(LudumDare36VideoGame game_) {
 		game = game_;
 		
@@ -34,6 +39,10 @@ public class GameScreen implements Screen {
 		cam.setToOrtho(false, 32,18);
 		
 		player = new PlayerCharacter(8,7, tiledMap);
+		
+		camX = new EaseDt(0,0.95f);
+		camY = new EaseDt(0,0.95f);
+		camR = new EaseDt(0,0.95f);
 	}
 	
 	@Override
@@ -55,13 +64,16 @@ public class GameScreen implements Screen {
 		
 		
 		//Update cam and make sure it's not out of bounds
-		cam.position.x += ((player.renderedPos.x + 0.5f)- cam.position.x) * 4 * dt;
-		cam.position.y += ((player.renderedPos.y + 0.5f)- cam.position.y) * 4 * dt;
+		camX.setTarget(player.renderedPos.x);
+		camY.setTarget(player.renderedPos.y);
+		cam.position.x = camX.updateAndGet(dt);
+		cam.position.y = camY.updateAndGet(dt);
 		cam.position.x = clamp(cam.position.x,16,1000);
 		cam.position.y = clamp(cam.position.y,9,1000);
 		
 		//Rotation effect
-		rotation += (rotationTarget - rotation) * 15f * dt;
+		camR.setTarget(rotationTarget);
+		rotation = camR.updateAndGet(dt);
 		cam.up.set(0f,1f,0f);
 		cam.direction.set(0f,0f,-1f);
 		cam.rotate(rotation);
@@ -112,10 +124,12 @@ public class GameScreen implements Screen {
 		player.render(game.shapes); //TODO make this a sprite
 		game.shapes.end();
 		
-		game.batch.begin();
-		game.font.setColor(1,0,0,1);
-		game.font.draw(game.batch,"dt: " + dt + "\n1/dt: " + 1f/dt, 1,400);
-		game.batch.end();
+		if(LudumDare36VideoGame.DEBUG) {
+			game.batch.begin();
+			game.font.setColor(1, 0, 0, 1);
+			game.font.draw(game.batch, "dt: " + dt + "\n1/dt: " + 1f / dt, 1, 400);
+			game.batch.end();
+		}
 		
 		if(mainScreen && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
 			game.setScreen(Screens.INVENTORY_SCREEN);

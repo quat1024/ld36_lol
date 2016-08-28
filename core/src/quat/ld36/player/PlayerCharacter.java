@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import quat.ld36.util.EaseDt;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 import static com.badlogic.gdx.math.MathUtils.floor;
@@ -27,6 +28,10 @@ public class PlayerCharacter {
 	
 	//My smoothed-out position.
 	public Vector2 renderedPos;
+	
+	//The thing that smooths out my position.
+	private EaseDt easeX;
+	private EaseDt easeY;
 	
 	//The map as a whole.
 	private TiledMap tiledMap;
@@ -66,6 +71,9 @@ public class PlayerCharacter {
 				layers.add((TiledMapTileLayer) tiledMap.getLayers().get(i));
 			}
 		}
+		
+		easeX = new EaseDt(pos.x,0.75f);
+		easeY = new EaseDt(pos.y,0.75f);
 	}
 	
 	
@@ -114,8 +122,12 @@ public class PlayerCharacter {
 		}
 		
 		//Update the rendered rectangle
-		renderedPos.x += (pos.x - renderedPos.x) * 30 * dt;
-		renderedPos.y += (pos.y - renderedPos.y) * 30 * dt;
+		easeX.setTarget(pos.x);
+		easeY.setTarget(pos.y);
+		renderedPos.x = easeX.updateAndGet(dt);
+		renderedPos.y = easeY.updateAndGet(dt);
+		//renderedPos.x += (pos.x - renderedPos.x) * 30 * dt;
+		//renderedPos.y += (pos.y - renderedPos.y) * 30 * dt;
 		
 		rect.x = renderedPos.x;
 		rect.y = renderedPos.y;
@@ -197,7 +209,7 @@ public class PlayerCharacter {
 		}
 		
 		if(movementBlocked) {
-			renderedPos.add(posDiff.scl(0.2f));
+			//todo: playsound
 		} else {
 			pos = wantedPos;
 		}

@@ -30,6 +30,7 @@ public class LudumDare36VideoGame extends Game {
 	public static Pixmap backgroundImage;
 	
 	public static final int FPS = 60;
+	public static final boolean DEBUG = false;
 	
 	@Override
 	public void create() {
