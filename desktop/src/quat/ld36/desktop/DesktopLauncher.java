@@ -12,7 +12,8 @@ public class DesktopLauncher {
 		config.title="Meme";
 		config.width=LudumDare36VideoGame.WIDTH;
 		config.height=LudumDare36VideoGame.HEIGHT;
-		config.samples=0;
+		config.samples=0; //Just double check. It looks like shit with antialiasing. (Maybe fix that)
+		config.foregroundFPS = LudumDare36VideoGame.FPS;
 		
 		new LwjglApplication(new LudumDare36VideoGame(), config);
 	}

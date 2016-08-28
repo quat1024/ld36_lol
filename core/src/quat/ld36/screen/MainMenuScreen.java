@@ -34,7 +34,8 @@ public class MainMenuScreen implements Screen {
 		camera.update();
 		game.batch.begin();
 		
-		game.font.draw(game.batch,"This is my game lol",LudumDare36VideoGame.WIDTH/2, LudumDare36VideoGame.HEIGHT/2);
+		game.font.draw(game.batch,"This is my video game lol",LudumDare36VideoGame.WIDTH/4, 2*LudumDare36VideoGame.HEIGHT/3);
+		game.font.draw(game.batch,"click to play", 30, 100);
 		
 		game.batch.end();
 		

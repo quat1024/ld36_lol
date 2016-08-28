@@ -46,18 +46,17 @@ public class GameScreen implements Screen {
 		//so I need to make sure we're actually on the right screen here.
 		boolean mainScreen = game.getScreen() instanceof GameScreen;
 		
-		
 		//Clear screen
 		Gdx.gl.glClearColor(0.1f,0.1f,0.1f,1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		//Update player
+		//Handle input
 		if(mainScreen) player.handleInput(dt);
-		player.update(dt);
+		
 		
 		//Update cam and make sure it's not out of bounds
-		cam.position.x += ((player.renderedPos.x + 0.5f) - cam.position.x) * 2 * dt;
-		cam.position.y += ((player.renderedPos.y + 0.5f)- cam.position.y) * 2 * dt;
+		cam.position.x += ((player.renderedPos.x + 0.5f)- cam.position.x) * 4 * dt;
+		cam.position.y += ((player.renderedPos.y + 0.5f)- cam.position.y) * 4 * dt;
 		cam.position.x = clamp(cam.position.x,16,1000);
 		cam.position.y = clamp(cam.position.y,9,1000);
 		
@@ -69,10 +68,11 @@ public class GameScreen implements Screen {
 		cam.zoom = 1 - rotation / 20f;
 		cam.update();
 		
+		//Update player
+		player.update(dt, cam);
+		
 		//Calculate screenspace coordinates of stuff
-		Vector3 mouseVec3 = cam.unproject(new Vector3(Gdx.input.getX(),Gdx.input.getY(),0f));
-		int mouseXTile = floor(mouseVec3.x);
-		int mouseYTile = floor(mouseVec3.y);
+		
 		
 		Vector3 playerVec3 = new Vector3(player.renderedPos.x + 0.5f, player.renderedPos.y + 0.5f,0);
 		
@@ -85,23 +85,45 @@ public class GameScreen implements Screen {
 		game.mapRenderer.render();
 		game.batch.end();
 		
-		//Shapes Rendering
+		//Cursor and Selection Rendering
+		if(mainScreen && player.miningAvailable && player.withinRange(player.mouseTileX,player.mouseTileY)) {
+			Gdx.gl20.glEnable(GL20.GL_BLEND);
+			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			game.shapes.setAutoShapeType(true);
+			game.shapes.begin(ShapeRenderer.ShapeType.Line);
+			
+			game.shapes.setColor(0f, 0f, 0f, player.rangeAlpha(player.mouseTileX,player.mouseTileY)/4f);
+			game.shapes.rect(player.mouseTileX ,player.mouseTileY, 1, 1);
+			
+			game.shapes.setColor(1f, 1f, 1f, player.rangeAlpha(player.mouseTileX,player.mouseTileY));
+			game.shapes.line(player.mouseTileX + 0.5f,player.mouseTileY + 0.5f, playerVec3.x, playerVec3.y);
+			
+			game.shapes.set(ShapeRenderer.ShapeType.Filled);
+			game.shapes.setColor(0f,0f,0f,0.5f);
+			game.shapes.rect(player.mouseTileX + 0.5f-player.mineProgress/2f, player.mouseTileY + 0.5f-player.mineProgress/2f,
+							         player.mineProgress, player.mineProgress);
+			game.shapes.end();
+			game.shapes.setAutoShapeType(false);
+			Gdx.gl20.glDisable(GL20.GL_BLEND);
+		}
+		
+		//Player Rendering
 		game.shapes.begin(ShapeRenderer.ShapeType.Filled);
 		player.render(game.shapes); //TODO make this a sprite
 		game.shapes.end();
 		
-		game.shapes.begin(ShapeRenderer.ShapeType.Line);
-		game.shapes.setColor(0f,0f,0f,0.3f);
-		game.shapes.rect(mouseXTile,mouseYTile,1,1);
-		game.shapes.line(mouseXTile+0.5f,mouseYTile+0.5f,playerVec3.x,playerVec3.y);
-		
-		
-		game.shapes.end();
+		game.batch.begin();
+		game.font.setColor(1,0,0,1);
+		game.font.draw(game.batch,"dt: " + dt + "\n1/dt: " + 1f/dt, 1,400);
+		game.batch.end();
 		
 		if(mainScreen && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
 			game.setScreen(Screens.INVENTORY_SCREEN);
 		}
 	}
+	
+	
+	
 	
 	@Override
 	public void resize(int width, int height) {
