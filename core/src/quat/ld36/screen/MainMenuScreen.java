@@ -12,7 +12,7 @@ public class MainMenuScreen implements Screen {
 	
 	final LudumDare36VideoGame game;
 	
-	OrthographicCamera camera;
+	public static OrthographicCamera camera;
 	
 	public MainMenuScreen(final LudumDare36VideoGame game_) {
 		game = game_;
@@ -32,6 +32,7 @@ public class MainMenuScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		camera.update();
+		game.batch.setProjectionMatrix(camera.combined);
 		game.batch.begin();
 		
 		game.font.draw(game.batch,"This is my video game lol",LudumDare36VideoGame.WIDTH/4, 2*LudumDare36VideoGame.HEIGHT/3);

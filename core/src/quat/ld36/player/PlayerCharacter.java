@@ -13,7 +13,12 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import quat.ld36.item.Item;
+import quat.ld36.item.ItemStack;
+import quat.ld36.screen.GameScreen;
+import quat.ld36.screen.Screens;
 import quat.ld36.util.EaseDt;
+import quat.ld36.util.ItemID;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 import static com.badlogic.gdx.math.MathUtils.floor;
@@ -53,6 +58,8 @@ public class PlayerCharacter {
 	public boolean miningAvailable;
 	public TiledMapTile pointedCell;
 	public MapProperties pointedCellProps;
+	
+	public Array<ItemStack> inventory = new Array<ItemStack>();
 	
 	public PlayerCharacter(int x, int y, TiledMap tiledMap_) {
 		pos = new Vector2(x,y);
@@ -115,8 +122,15 @@ public class PlayerCharacter {
 		
 		//Maybe we're done mining! Then remove the block
 		if(mineProgress > 0.999f && miningAvailable) {
-			System.out.println("asdsadsdsdsadsadsdsad");
 			objects.setCell(mouseTileX,mouseTileY,null);
+			
+			//Maybe this block drops a resource when you mine it.
+			if(pointedCellProps.containsKey("Drops")) {
+				//Oh it does! Which one though
+				ItemID item = ItemID.fromID(pointedCellProps.get("Drops",Integer.class));
+				System.out.println(item.name);
+				Screens.GAME_SCREEN.items.add(new Item(new Vector2(mouseTileX,mouseTileY),item));
+			}
 			
 			mineProgress = 0; //Sanity check
 		}
@@ -126,8 +140,6 @@ public class PlayerCharacter {
 		easeY.setTarget(pos.y);
 		renderedPos.x = easeX.updateAndGet(dt);
 		renderedPos.y = easeY.updateAndGet(dt);
-		//renderedPos.x += (pos.x - renderedPos.x) * 30 * dt;
-		//renderedPos.y += (pos.y - renderedPos.y) * 30 * dt;
 		
 		rect.x = renderedPos.x;
 		rect.y = renderedPos.y;
@@ -197,7 +209,7 @@ public class PlayerCharacter {
 			//Now we're going to look through the properties and see if anything fancy has to happen.
 			MapProperties tileProp = meme.getTile().getProperties();
 			
-			if(tileProp.get("Water",Boolean.class)) { //TODO: and also not having the walking on water trait
+			if(tileProp.get("Water",Boolean.class)) { //TODO: and also not having the walking on water trait/boat
 				movementBlocked = true;
 				break;
 			}
@@ -205,6 +217,16 @@ public class PlayerCharacter {
 			if(tileProp.get("AlwaysSolid", Boolean.class)) {
 				movementBlocked = true;
 				break;
+			}
+		}
+		
+		//Test to see if we can pick up an itemID.
+		for(Item i : Screens.GAME_SCREEN.items) {
+			if(i.isAt(pos)) {
+				
+				inventory.add(new ItemStack(i,1));
+				
+				Screens.GAME_SCREEN.items.removeValue(i,false);
 			}
 		}
 		

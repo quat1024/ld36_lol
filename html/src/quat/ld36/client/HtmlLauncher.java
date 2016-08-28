@@ -9,7 +9,11 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public GwtApplicationConfiguration getConfig () {
-                return new GwtApplicationConfiguration(480, 320);
+                GwtApplicationConfiguration config = new GwtApplicationConfiguration(LudumDare36VideoGame.WIDTH, LudumDare36VideoGame.HEIGHT);
+	        
+	        config.antialiasing = false;
+	        
+	        return config;
         }
 
         @Override
